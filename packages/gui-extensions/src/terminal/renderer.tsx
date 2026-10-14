@@ -1,4 +1,5 @@
 import { createMemo, lazy, on, onCleanup, Suspense } from "solid-js"
+import { showToast } from "@opencode/ui/toast"
 import { Command, createKeyed, onIdle, Panel, type Setup } from "../sdk"
 import { Terminal } from "./contract"
 import type TerminalExtension from "./index"
@@ -9,7 +10,16 @@ const DOCK = "terminal:main"
 const setup: Setup<typeof TerminalExtension> = (ctx) => {
   const sessions = ctx.sessions
   const layout = ctx.layout
-  const model = createTerminalModel({ storage: ctx.storage, sessions })
+  const model = createTerminalModel({
+    storage: ctx.storage,
+    sessions,
+    onError: (error) =>
+      showToast({
+        variant: "error",
+        title: ctx.t("createFailed"),
+        description: error instanceof Error ? error.message : String(error),
+      }),
+  })
 
   onCleanup(model.dispose)
   // The host withdraws the listener with the extension.

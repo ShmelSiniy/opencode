@@ -37,7 +37,7 @@ const trimTerminal = (pty: Mutable<LocalPTY>) => {
   pty.scrollY = undefined
 }
 
-export function createTerminalModel(input: { storage: Storage; sessions: Sessions }) {
+export function createTerminalModel(input: { storage: Storage; sessions: Sessions; onError?: (error: unknown) => void }) {
   const owner = getOwner()
   const cache = new Map<string, CacheEntry>()
   const [handoff] = input.storage.memory("handoff", { initial: { terminal: new Map<string, string[]>() } })
@@ -77,7 +77,7 @@ export function createTerminalModel(input: { storage: Storage; sessions: Session
       const directory = session.directory
 
       const entry = createRoot(
-        (dispose) => ({ value: createWorkspace({ storage: input.storage, server, directory, key }), dispose }),
+        (dispose) => ({ value: createWorkspace({ storage: input.storage, server, directory, key, onError: input.onError }), dispose }),
         owner,
       )
 
@@ -128,7 +128,7 @@ export function createTerminalModel(input: { storage: Storage; sessions: Session
   }
 }
 
-function createWorkspace(input: { storage: Storage; server: ServerRef; directory: string; key: string }) {
+function createWorkspace(input: { storage: Storage; server: ServerRef; directory: string; key: string; onError?: (error: unknown) => void }) {
   const location = { directory: input.directory }
 
   const stored = input.storage.store(STORE, {
@@ -349,6 +349,8 @@ function createWorkspace(input: { storage: Storage; server: ServerRef; directory
         .catch((error) => {
           cancelFocus(focusRequest)
           console.error("Failed to create terminal", error)
+          // The dock can ask for a terminal without the user asking for it, so a failure is reported to the host too.
+          input.onError?.(error)
         })
     },
     update,
