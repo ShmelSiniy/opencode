@@ -1,0 +1,46 @@
+name: Desktop (fork) - Open in PowerShell fix
+
+on:
+  push:
+    branches:
+      - fix/desktop-open-in-powershell
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-2025
+    timeout-minutes: 120
+    env:
+      OPENCODE_CHANNEL: dev
+      OPENCODE_VERSION: 2.0.29-forkfix
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: ./.github/actions/setup-bun
+
+      - name: Prebuild (icons, metainfo, CLI from npm)
+        working-directory: packages/desktop
+        run: bun ./scripts/prebuild.ts
+
+      - name: Build renderer and main
+        working-directory: packages/desktop
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: bun run build
+
+      - name: Package (NSIS, unsigned)
+        working-directory: packages/desktop
+        run: npx electron-builder --win --publish never --config electron-builder.config.ts
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencode-desktop-dev-win-x64
+          path: |
+            packages/desktop/dist/*.exe
+            packages/desktop/dist/*.yml
+          if-no-files-found: error
