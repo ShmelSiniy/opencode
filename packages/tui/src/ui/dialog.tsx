@@ -139,6 +139,15 @@ export function DialogLayout(
   )
 }
 
+/** Stretches a raised band inside a `DialogLayout` across the side padding; its content re-applies `DIALOG_PADDING_X`. */
+export function DialogBleed(props: ParentProps) {
+  return (
+    <box marginLeft={-DIALOG_PADDING_X} marginRight={-DIALOG_PADDING_X}>
+      {props.children}
+    </box>
+  )
+}
+
 export type DialogFooterAction = {
   title: string
   /** Literal key label, e.g. "enter". */
