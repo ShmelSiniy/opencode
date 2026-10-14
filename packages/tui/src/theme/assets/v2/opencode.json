@@ -57,6 +57,7 @@
         "high": "$hue.neutral.600",
         "max": "$hue.neutral.500"
       },
+      "footer": "$background.raised.base",
       "action": {
         "primary": {
           "base": "transparent",
@@ -149,6 +150,7 @@
     "@dialog": {
       "background": {
         "base": "$background.raised.base",
+        "footer": "$background.raised.high",
         "action": {
           "primary": {
             "$hovered": "$background.raised.high"

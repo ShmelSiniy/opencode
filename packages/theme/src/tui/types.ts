@@ -42,6 +42,8 @@ export type ResolvedThemeTokens = {
       readonly high: RGBA
       readonly max: RGBA
     }
+    /** Full-width strip at the bottom of a surface that holds its footer actions. */
+    readonly footer: RGBA
     readonly action: Readonly<Record<ActionVariant, StatefulColor>>
     readonly formfield: FormfieldColor
     readonly feedback: Readonly<Record<FeedbackKind, { readonly base: RGBA }>>

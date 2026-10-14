@@ -53,6 +53,8 @@ test("migrates resolved V1 modes into V2 tokens", () => {
   expect(resolved.text.action.secondary.hovered.toInts()).toEqual(legacy.text.toInts())
   expect(resolved.background.feedback.error.base.toInts()).toEqual(legacy.background.toInts())
   expect(resolved.surface("dialog").background.base.toInts()).toEqual(legacy.backgroundPanel.toInts())
+  expect(resolved.background.footer.toInts()).toEqual(legacy.backgroundPanel.toInts())
+  expect(resolved.surface("dialog").background.footer.toInts()).toEqual(legacy.backgroundElement.toInts())
   expect(resolved.surface("dialog").background.action.primary.base.toInts()).toEqual([0, 0, 0, 0])
   expect(resolved.surface("dialog").text.action.primary.base.toInts()).toEqual(legacy.text.toInts())
 })

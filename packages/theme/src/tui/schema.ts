@@ -111,6 +111,7 @@ const BackgroundDefinition = Schema.Struct({
       max: Schema.optional(ColorValue),
     }),
   ),
+  footer: Schema.optional(ColorValue),
   action: Schema.optional(ActionColorDefinition),
   formfield: Schema.optional(StatefulColorDefinition),
   feedback: Schema.optional(
@@ -234,6 +235,8 @@ const CompleteThemeTokensDefinition = Schema.Struct({
   background: Schema.Struct({
     base: ColorValue,
     raised: Schema.Struct({ base: ColorValue, high: ColorValue, max: ColorValue }),
+    // Optional so custom themes written before it still parse; expandTheme supplies the fallback.
+    footer: Schema.optional(ColorValue),
     action: CompleteActionColorDefinition,
     formfield: CompleteStatefulColorDefinition,
     feedback: Schema.Struct({

@@ -285,6 +285,35 @@ test("resolves dialog surfaces from direct colors", () => {
   expect(theme.surface("dialog").background.action.primary.hovered.toInts()).toEqual([35, 69, 103, 255])
 })
 
+test("resolves the footer band one raised step above each surface", () => {
+  const lightTheme = resolveTheme(opencodeLight)
+  const darkTheme = resolveTheme(opencodeDark)
+
+  expect(lightTheme.background.footer).toBe(lightTheme.background.raised.base)
+  expect(lightTheme.surface("dialog").background.footer).toBe(lightTheme.background.raised.high)
+  expect(lightTheme.surface("dialog").background.footer.toInts()).toEqual([245, 245, 245, 255])
+  expect(darkTheme.background.footer).toBe(darkTheme.background.raised.base)
+  expect(darkTheme.surface("dialog").background.footer).toBe(darkTheme.background.raised.high)
+  expect(darkTheme.surface("dialog").background.footer.toInts()).toEqual([30, 30, 30, 255])
+})
+
+test("falls back to raised footer bands for custom themes without one", () => {
+  const { footer: _, ...background } = light.background
+  const { footer: __, ...dialogBackground } = light["@dialog"]?.background ?? {}
+  const legacy: ThemeDefinition = { ...light, background, "@dialog": { ...light["@dialog"], background: dialogBackground } }
+  const theme = resolveTheme(legacy)
+  expect(theme.background.footer).toBe(theme.background.raised.base)
+  expect(theme.surface("dialog").background.footer).toBe(theme.background.raised.high)
+
+  const { "@dialog": ___, ...flat } = legacy
+  const flatTheme = resolveTheme(flat)
+  expect(flatTheme.surface("dialog").background.footer).toBe(flatTheme.background.raised.base)
+
+  const custom = resolveTheme(override(legacy, { background: { footer: "#123456" } }))
+  expect(custom.background.footer.toInts()).toEqual([18, 52, 86, 255])
+  expect(custom.surface("dialog").background.footer.toInts()).toEqual([18, 52, 86, 255])
+})
+
 test("resolves transparent colors", () => {
   const theme = resolveSource(complete("light", {
     background: { ...light.background, formfield: { base: "transparent" } },

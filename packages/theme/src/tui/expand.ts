@@ -8,10 +8,23 @@ import type {
 import { ActionState } from "./schema.js"
 
 export function expandTheme<Definition extends ModeDefinition>(definition: Definition): Definition {
+  const dialog = definition["@dialog"]
+  // Themes without a footer band raise it one step above its surface: raised.base on the base view, raised.high on dialogs.
+  const fallback = definition.background && !definition.background.footer
   return {
     ...definition,
-    ...expandTokens(definition),
-    ...(definition["@dialog"] ? { "@dialog": expandTokens(definition["@dialog"]) } : {}),
+    ...expandTokens(
+      fallback ? { ...definition, background: { ...definition.background, footer: "$background.raised.base" } } : definition,
+    ),
+    ...(dialog
+      ? {
+          "@dialog": expandTokens(
+            fallback && !dialog.background?.footer
+              ? { ...dialog, background: { ...dialog.background, footer: "$background.raised.high" } }
+              : dialog,
+          ),
+        }
+      : {}),
   }
 }
 

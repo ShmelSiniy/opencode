@@ -150,6 +150,7 @@ function migrateMode(theme: Theme, mode: Mode): ThemeDefinition {
         high: backgroundMenu,
         max: backgroundRaisedMax,
       },
+      footer: "$background.raised.base",
       action: {
         primary: { base: "transparent", $hovered: backgroundPanel, $focused: primary, $selected: "transparent" },
         secondary: { base: "transparent" },
@@ -218,6 +219,7 @@ function migrateMode(theme: Theme, mode: Mode): ThemeDefinition {
     "@dialog": {
       background: {
         base: "$background.raised.base",
+        footer: "$background.raised.high",
         action: { primary: { $hovered: "$background.raised.high" } },
       },
     },
