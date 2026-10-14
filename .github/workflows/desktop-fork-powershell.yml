@@ -39,8 +39,15 @@ jobs:
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
-          name: opencode-desktop-dev-win-x64
+          name: opencode-desktop-dev-win-x64-${{ github.sha }}
           path: |
             packages/desktop/dist/*.exe
             packages/desktop/dist/*.yml
+          if-no-files-found: error
+
+      - name: Upload portable build
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencode-desktop-dev-win-x64-portable-${{ github.sha }}
+          path: packages/desktop/dist/win-unpacked/**
           if-no-files-found: error
