@@ -12,6 +12,7 @@ export default {
   "open.ariaLabel": "Открыть в {{app}}",
   "open.menu": "Варианты открытия",
   "open.copyPath": "Копировать путь",
+  "open.terminalUnavailable": "Терминал пока недоступен.",
   "open.app.vscode": "VS Code",
   "open.app.cursor": "Cursor",
   "open.app.zed": "Zed",

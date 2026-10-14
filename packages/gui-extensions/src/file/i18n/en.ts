@@ -23,6 +23,7 @@ export default {
   "open.ariaLabel": "Open in {{app}}",
   "open.menu": "Open options",
   "open.copyPath": "Copy path",
+  "open.terminalUnavailable": "The terminal is not available yet.",
   "open.app.vscode": "VS Code",
   "open.app.cursor": "Cursor",
   "open.app.zed": "Zed",
