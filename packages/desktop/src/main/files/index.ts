@@ -1,6 +1,6 @@
 export * as DesktopFiles from "./index"
 
-import { execFile } from "node:child_process"
+import { execFile, spawn } from "node:child_process"
 import { clipboard, dialog, nativeImage, shell } from "electron"
 import { Context, Effect, FileSystem, Layer, Path } from "effect"
 import type { DirectoryPickerOptions, FilePickerOptions, SaveFilePickerOptions } from "../../shared/ipc-contract"
@@ -87,6 +87,30 @@ function make(fs: FileSystem.FileSystem, path: Path.Path) {
     }),
     openPath: Effect.fn("DesktopFiles.openPath")(function* (target: string, application?: string) {
       if (!application) return yield* Effect.promise(() => shell.openPath(target))
+
+      if (process.platform !== "darwin" && isShell(application)) {
+        // A shell takes the directory as its working directory, not as a positional argument, and it
+        // has to outlive the call: execFile would never settle while the terminal window is open.
+        yield* Effect.tryPromise(
+          () =>
+            new Promise<void>((resolve, reject) => {
+              const child = spawn(application, ["-NoExit"], {
+                cwd: target,
+                detached: true,
+                stdio: "ignore",
+              })
+
+              child.once("spawn", () => {
+                child.unref()
+                resolve()
+              })
+              child.once("error", reject)
+            }),
+        )
+
+        return
+      }
+
       yield* Effect.tryPromise(() =>
         new Promise<void>((resolve, reject) => {
           const command =
@@ -135,6 +159,8 @@ function make(fs: FileSystem.FileSystem, path: Path.Path) {
 
 // Chromium exposes copied bitmaps as image/png; JPEG only appears when an app placed one explicitly.
 const clipboardImageTypes = ["image/png", "image/jpeg"]
+
+const isShell = (application: string) => /(^|[\\/])(powershell|pwsh)(\.exe)?$/i.test(application)
 
 export const openExternalURL = Effect.fn("DesktopFiles.openExternalURL")(function* (value: string) {
   const url = resolveExternalURL(value)
