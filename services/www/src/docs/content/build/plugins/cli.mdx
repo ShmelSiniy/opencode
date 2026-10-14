@@ -247,7 +247,9 @@ OpenCode runs plugins with its own OpenTUI. Since OpenTUI 0.6:
 - `getLayoutNode()` is removed. Replace `getLayoutNode().getMaxWidth()` and the other style getters with the
   renderable method of the same name, on OpenTUI 0.6.5 or later. Replace `getComputedLayout()` and the other computed
   position and size getters with `getLayout()`, and `markDirty()` with `invalidateIntrinsicSize()`. Computed padding,
-  margin, and border have no replacement, and `getPadding(edge)` reads only the padding set for that edge.
+  margin, and border have no replacement, and `getPadding(edge)` reads only the padding set for that edge. To restore a
+  style that a getter reports as unset (`Unit.Undefined`), assign `undefined` to the property, on OpenTUI 0.6.6 or
+  later.
 
 The [OpenTUI 0.6.0 release notes](https://opentui.com/docs/releases/0.6.0) list every change.
 
@@ -641,8 +643,8 @@ Expose the CLI plugin through `./tui`; add OpenTUI peers when the plugin renders
     "@opencode/plugin": "latest"
   },
   "peerDependencies": {
-    "@opentui/core": ">=0.6.5",
-    "@opentui/solid": ">=0.6.5",
+    "@opentui/core": ">=0.6.6",
+    "@opentui/solid": ">=0.6.6",
     "solid-js": ">=1.9.0"
   }
 }
