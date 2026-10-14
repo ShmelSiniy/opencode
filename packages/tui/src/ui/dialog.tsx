@@ -44,41 +44,41 @@ export function Dialog(
   return (
     <ThemeContextProvider context="dialog">
       <box
-      onMouseDown={() => {
-        dismiss = !!renderer.getSelection()
-      }}
-      onMouseUp={() => {
-        if (dismiss) {
-          dismiss = false
-          return
-        }
-        props.onClose?.()
-      }}
-      width={dimensions().width}
-      height={dimensions().height}
-      alignItems="center"
-      justifyContent={props.centered ? "center" : undefined}
-      position="absolute"
-      zIndex={3000}
-      paddingTop={props.centered ? 0 : dimensions().height / 4}
-      left={0}
-      top={0}
-      backgroundColor={RGBA.fromInts(0, 0, 0, 150)}
-    >
-      <box
-        onMouseUp={(e: { stopPropagation(): void }) => {
-          // A selection release must bubble up to the copy-on-select handler in
-          // DialogProvider; the backdrop's dismiss flag keeps it from closing the dialog.
-          if (renderer.getSelection()?.getSelectedText()) return
-          dismiss = false
-          e.stopPropagation()
+        onMouseDown={() => {
+          dismiss = !!renderer.getSelection()
         }}
-        width={dialogWidth(props.size ?? "medium")}
-        maxWidth={dimensions().width - 2}
-        backgroundColor={theme.background.base}
+        onMouseUp={() => {
+          if (dismiss) {
+            dismiss = false
+            return
+          }
+          props.onClose?.()
+        }}
+        width={dimensions().width}
+        height={dimensions().height}
+        alignItems="center"
+        justifyContent={props.centered ? "center" : undefined}
+        position="absolute"
+        zIndex={3000}
+        paddingTop={props.centered ? 0 : dimensions().height / 4}
+        left={0}
+        top={0}
+        backgroundColor={RGBA.fromInts(0, 0, 0, 150)}
       >
-        <box paddingTop={1}>{props.children}</box>
-      </box>
+        <box
+          onMouseUp={(e: { stopPropagation(): void }) => {
+            // A selection release must bubble up to the copy-on-select handler in
+            // DialogProvider; the backdrop's dismiss flag keeps it from closing the dialog.
+            if (renderer.getSelection()?.getSelectedText()) return
+            dismiss = false
+            e.stopPropagation()
+          }}
+          width={dialogWidth(props.size ?? "medium")}
+          maxWidth={dimensions().width - 2}
+          backgroundColor={theme.background.base}
+        >
+          <box paddingTop={1}>{props.children}</box>
+        </box>
       </box>
     </ThemeContextProvider>
   )
