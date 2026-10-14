@@ -1,11 +1,12 @@
 import { createMemo, lazy, on, onCleanup, Suspense } from "solid-js"
 import { Command, createKeyed, onIdle, Panel, type Setup } from "../sdk"
-import type Terminal from "./index"
+import { Terminal } from "./contract"
+import type TerminalExtension from "./index"
 import { createTerminalModel, type TerminalWorkspace } from "./model"
 
 const DOCK = "terminal:main"
 
-const setup: Setup<typeof Terminal> = (ctx) => {
+const setup: Setup<typeof TerminalExtension> = (ctx) => {
   const sessions = ctx.sessions
   const layout = ctx.layout
   const model = createTerminalModel({ storage: ctx.storage, sessions })
@@ -93,6 +94,17 @@ const setup: Setup<typeof Terminal> = (ctx) => {
       },
     }),
   )
+
+  ctx.provide(Terminal, {
+    open(session) {
+      const terminal = model.load(session)
+
+      layout.open(DOCK, session)
+
+      // The dock creates the first terminal itself; a workspace that has some needs an explicit new tab.
+      if (terminal.all().length > 0) terminal.new()
+    },
+  })
 
   ctx.add(
     Command,

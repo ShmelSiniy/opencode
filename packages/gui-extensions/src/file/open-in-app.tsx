@@ -31,6 +31,8 @@ const WINDOWS_OPEN_APPS = [
   { id: "vscode", label: "open.app.vscode", icon: "vscode", openWith: "code" },
   { id: "cursor", label: "open.app.cursor", icon: "cursor", openWith: "cursor" },
   { id: "zed", label: "open.app.zed", icon: "zed", openWith: "zed" },
+  // Opens a tab in the app's own terminal dock; `openWith` only gates it on PowerShell being installed.
+  { id: "terminal", label: "open.app.terminal", icon: "terminal", openWith: "powershell" },
   { id: "powershell", label: "open.app.powershell", icon: "powershell", openWith: "powershell" },
   { id: "sublime-text", label: "open.app.sublimeText", icon: "sublime-text", openWith: "Sublime Text" },
 ] as const
@@ -134,6 +136,15 @@ export function useOpenInApp(input: { session: MountedSession; path: () => strin
     if (opening() || !canOpen() || !desktop) return
 
     if (!target) return
+
+    if (app === "terminal" && os() === "windows") {
+      const terminal = shared.terminal()
+
+      if (terminal.status === "active") terminal.value.open(input.session)
+      else showRequestError(ctx, ctx.t("open.terminalUnavailable"))
+
+      return
+    }
 
     const item = options().find((o) => o.id === app)
     const openWith = item && "openWith" in item ? item.openWith : undefined
