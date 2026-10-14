@@ -1,7 +1,8 @@
 export * as DesktopFiles from "./index"
 
 import { execFile, spawn } from "node:child_process"
-import { clipboard, dialog, nativeImage, shell } from "electron"
+import { BrowserWindow, clipboard, dialog, nativeImage, shell } from "electron"
+import type { MessageBoxOptions } from "electron"
 import { Context, Effect, FileSystem, Layer, Path } from "effect"
 import type { DirectoryPickerOptions, FilePickerOptions, SaveFilePickerOptions } from "../../shared/ipc-contract"
 import { scoped } from "../native/logging"
@@ -91,10 +92,17 @@ function make(fs: FileSystem.FileSystem, path: Path.Path) {
       if (process.platform !== "darwin" && isShell(application)) {
         // A shell takes the directory as its working directory, not as a positional argument, and it
         // has to outlive the call: execFile would never settle while the terminal window is open.
+        const shells = yield* Effect.promise(() => detectShells())
+        // Windows always ships 5.1 and may also have PowerShell 7, so ask which one to start.
+        const chosen =
+          shells.length > 1 ? yield* Effect.promise(() => chooseShell(target, shells)) : (shells[0] ?? undefined)
+
+        if (!chosen) return
+
         yield* Effect.tryPromise(
           () =>
             new Promise<void>((resolve, reject) => {
-              const child = spawn(application, ["-NoExit"], {
+              const child = spawn(chosen.file, ["-NoExit"], {
                 cwd: target,
                 detached: true,
                 stdio: "ignore",
@@ -161,6 +169,65 @@ function make(fs: FileSystem.FileSystem, path: Path.Path) {
 const clipboardImageTypes = ["image/png", "image/jpeg"]
 
 const isShell = (application: string) => /(^|[\\/])(powershell|pwsh)(\.exe)?$/i.test(application)
+
+type ShellChoice = { label: string; file: string }
+
+// Windows ships the inbox 5.1 as `powershell` and PowerShell 7 as `pwsh` when it is installed, so the
+// installed versions are resolved with `where` instead of assuming one of them.
+const WINDOWS_SHELLS = [
+  { command: "powershell", label: "Windows PowerShell 5.1" },
+  { command: "pwsh", label: "PowerShell 7" },
+]
+
+function whereExecutables(command: string) {
+  return new Promise<string[]>((resolve) => {
+    execFile("where", [command], { windowsHide: true }, (error, stdout) => {
+      if (error) return resolve([])
+
+      resolve(
+        stdout
+          .split(/\r?\n/)
+          .map((line) => line.trim())
+          .filter((line) => /\.exe$/i.test(line)),
+      )
+    })
+  })
+}
+
+async function detectShells() {
+  const found: ShellChoice[] = []
+
+  for (const candidate of WINDOWS_SHELLS) {
+    for (const file of await whereExecutables(candidate.command)) {
+      if (found.some((shell) => shell.file.toLowerCase() === file.toLowerCase())) continue
+
+      found.push({ file, label: candidate.label })
+    }
+  }
+
+  return found
+}
+
+// Asks which shell to start when more than one is installed. The labels and the body are English only
+// for now: the native catalogs are keyed and adding keys belongs to the main repository.
+async function chooseShell(target: string, shells: ShellChoice[]) {
+  const options: MessageBoxOptions = {
+    type: "question",
+    noLink: true,
+    buttons: [...shells.map((shell) => shell.label), "Cancel"],
+    defaultId: 0,
+    cancelId: shells.length,
+    title: "Open in PowerShell",
+    message: "Which PowerShell should open this folder?",
+    detail: `${target}\n\n${shells
+      .map((shell, index) => `${index + 1}. ${shell.label} - ${shell.file}`)
+      .join("\n")}\n\nThe chosen shell opens in that folder and stays open.`,
+  }
+  const parent = BrowserWindow.getFocusedWindow()
+  const result = parent ? await dialog.showMessageBox(parent, options) : await dialog.showMessageBox(options)
+
+  return shells[result.response]
+}
 
 export const openExternalURL = Effect.fn("DesktopFiles.openExternalURL")(function* (value: string) {
   const url = resolveExternalURL(value)
