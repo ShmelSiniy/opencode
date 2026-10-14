@@ -92,21 +92,31 @@ function make(fs: FileSystem.FileSystem, path: Path.Path) {
       if (process.platform !== "darwin" && isShell(application)) {
         // A shell takes the directory as its working directory, not as a positional argument, and it
         // has to outlive the call: execFile would never settle while the terminal window is open.
-        const shells = yield* Effect.promise(() => detectShells())
+        const detected = yield* Effect.promise(() => detectShells())
+        // Detection only adds a version to choose from, so fall back to the executable that was
+        // resolved for us rather than leaving the click without an answer.
+        const shells = detected.length > 0 ? detected : [{ label: path.basename(application), file: application }]
         // Windows always ships 5.1 and may also have PowerShell 7, so ask which one to start.
-        const chosen =
-          shells.length > 1 ? yield* Effect.promise(() => chooseShell(target, shells)) : (shells[0] ?? undefined)
+        const chosen = shells.length > 1 ? yield* Effect.promise(() => chooseShell(target, shells)) : shells[0]
 
         if (!chosen) return
 
         yield* Effect.tryPromise(
           () =>
             new Promise<void>((resolve, reject) => {
-              const child = spawn(chosen.file, ["-NoExit"], {
-                cwd: target,
-                detached: true,
-                stdio: "ignore",
-              })
+              // Detaching the shell itself would hand it DETACHED_PROCESS, which allocates no console,
+              // so powershell.exe would exit before showing anything. `start` requests a new console
+              // instead, and cmd returns immediately so the promise still settles.
+              const child = spawn(
+                process.env.ComSpec ?? "cmd.exe",
+                ["/c", "start", '""', `"${chosen.file}"`, "-NoExit"],
+                {
+                  cwd: target,
+                  detached: true,
+                  stdio: "ignore",
+                  windowsVerbatimArguments: true,
+                },
+              )
 
               child.once("spawn", () => {
                 child.unref()
