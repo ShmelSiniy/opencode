@@ -11,6 +11,8 @@ import { copy, copyOnSelectRelease } from "../util/selection"
 
 export type DialogSize = "medium" | "large" | "xlarge"
 
+export const DIALOG_PADDING_X = 4
+
 export function dialogWidth(size: DialogSize) {
   if (size === "xlarge") return 116
   if (size === "large") return 88
@@ -64,9 +66,8 @@ export function Dialog(
         width={dialogWidth(props.size ?? "medium")}
         maxWidth={dimensions().width - 2}
         backgroundColor={theme.background.base}
-        paddingTop={1}
       >
-        {props.children}
+        <box paddingTop={1}>{props.children}</box>
       </box>
       </box>
     </ThemeContextProvider>
