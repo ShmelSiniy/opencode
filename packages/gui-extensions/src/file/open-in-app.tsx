@@ -118,9 +118,16 @@ export function useOpenInApp(input: { session: MountedSession; path: () => strin
 
   const canOpen = createMemo(() => !!desktop && input.session.server.local)
 
+  // On Windows the main button opens the in-app terminal unless an editor was picked; the external PowerShell window stays a menu item.
+  const preferred = () => {
+    const app = shared.app?.current()
+
+    return os() === "windows" && (app === undefined || app === "finder" || app === "powershell") ? "terminal" : app
+  }
+
   const current = createMemo(
     () =>
-      options().find((o) => o.id === shared.app?.current()) ??
+      options().find((o) => o.id === preferred()) ??
       options()[0] ??
       ({ id: "finder", label: fileManager().label, icon: fileManager().icon } as const),
   )
