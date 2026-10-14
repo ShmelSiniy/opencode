@@ -8,7 +8,7 @@ import { useClipboard } from "../../context/clipboard"
 import { Keymap } from "../../context/keymap"
 import { useTheme, useThemes } from "../../context/theme"
 import { usePlugin } from "../../plugin/context"
-import { DIALOG_PADDING_X, DialogHeader } from "../../ui/dialog"
+import { DIALOG_PADDING_X, DialogFooter, DialogHeader } from "../../ui/dialog"
 import { useToast } from "../../ui/toast"
 import { getScrollAcceleration } from "../../util/scroll"
 
@@ -159,15 +159,15 @@ export function Answer(props: {
           />
         </box>
       </scrollbox>
-      <box flexDirection="row" gap={3} paddingLeft={DIALOG_PADDING_X} paddingRight={DIALOG_PADDING_X}>
-        <text onMouseUp={copy}>
-          <span style={{ fg: copied() ? theme.text.feedback.success.base : theme.text.base }}>
-            <b>{copied() ? "✓ copied" : "c"}</b>
-          </span>
-          <span style={{ fg: theme.text.muted }}>{copied() ? "" : " copy"}</span>
-        </text>
-        <text fg={theme.text.muted}>j/k ↑/↓ scroll</text>
-      </box>
+      <DialogFooter
+        inset
+        actions={[
+          copied()
+            ? { title: "✓ copied", color: theme.text.feedback.success.base, onTrigger: copy }
+            : { title: "copy", key: "c", onTrigger: copy },
+          { title: "scroll", key: "j/k ↑/↓" },
+        ]}
+      />
     </box>
   )
 }
