@@ -2,7 +2,7 @@ import { useTerminalDimensions } from "@opentui/solid"
 import { createMemo, createSignal } from "solid-js"
 import { Keymap } from "../context/keymap"
 import { useTheme } from "../context/theme"
-import { DialogHeader, useDialog } from "../ui/dialog"
+import { DIALOG_PADDING_X, DialogHeader, useDialog } from "../ui/dialog"
 
 type ImagePreviewItem = Readonly<{
   uri: string
@@ -36,7 +36,13 @@ export function DialogImagePreview(props: { images: readonly ImagePreviewItem[];
   }))
 
   return (
-    <box id="prompt-image-viewer" paddingLeft={2} paddingRight={2} paddingBottom={1} gap={1}>
+    <box
+      id="prompt-image-viewer"
+      paddingLeft={DIALOG_PADDING_X}
+      paddingRight={DIALOG_PADDING_X}
+      paddingBottom={1}
+      gap={1}
+    >
       <DialogHeader title={`Image ${index() + 1} of ${props.images.length}`} />
       <image
         id="prompt-image-viewer-image"

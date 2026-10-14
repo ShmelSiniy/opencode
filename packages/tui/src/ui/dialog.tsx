@@ -81,7 +81,7 @@ export function DialogHeader(
     closeLabel?: string
     onClose?: () => void
     gap?: number
-    paddingX?: number
+    inset?: boolean
   }>,
 ) {
   const dialog = useDialog()
@@ -91,8 +91,8 @@ export function DialogHeader(
       flexDirection="row"
       justifyContent="space-between"
       gap={props.gap}
-      paddingLeft={props.paddingX}
-      paddingRight={props.paddingX}
+      paddingLeft={props.inset ? DIALOG_PADDING_X : undefined}
+      paddingRight={props.inset ? DIALOG_PADDING_X : undefined}
     >
       {props.titleView ?? (
         <text attributes={TextAttributes.BOLD} fg={theme.text.base}>

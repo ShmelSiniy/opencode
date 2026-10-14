@@ -4,7 +4,7 @@ import { createMemo, createResource, createSignal, For, Show } from "solid-js"
 import { renderUnicodeCompact } from "uqr"
 import { useClient } from "../context/client"
 import { useTheme } from "../context/theme"
-import { DialogHeader, useDialog } from "../ui/dialog"
+import { DIALOG_PADDING_X, DialogHeader, useDialog } from "../ui/dialog"
 import { Link } from "../ui/link"
 import { errorMessage } from "../util/error"
 
@@ -87,7 +87,7 @@ export function DialogPair() {
   }
 
   return (
-    <box paddingLeft={2} paddingRight={2} paddingBottom={1} gap={1}>
+    <box paddingLeft={DIALOG_PADDING_X} paddingRight={DIALOG_PADDING_X} paddingBottom={1} gap={1}>
       <DialogHeader title="Pair" />
       <Show
         when={loadError()}

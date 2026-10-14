@@ -6,7 +6,7 @@ import stripAnsi from "strip-ansi"
 import { useClient } from "../context/client"
 import { Keymap } from "../context/keymap"
 import { useTheme } from "../context/theme"
-import { DialogHeader, useDialog } from "../ui/dialog"
+import { DIALOG_PADDING_X, DialogHeader, useDialog } from "../ui/dialog"
 
 const PAGE_BYTES = 64 * 1024
 
@@ -100,7 +100,7 @@ export function DialogShellOutput(props: { shell: ShellInfo; location: LocationR
   }))
 
   return (
-    <box paddingLeft={2} paddingRight={2} paddingBottom={1} gap={1}>
+    <box paddingLeft={DIALOG_PADDING_X} paddingRight={DIALOG_PADDING_X} paddingBottom={1} gap={1}>
       <DialogHeader
         gap={2}
         titleView={

@@ -5,7 +5,7 @@ import { createStore } from "solid-js/store"
 import { FilePath } from "../ui/file-path"
 import { useTheme } from "../context/theme"
 import { useConfig } from "../config"
-import { DialogHeader, useDialog, type DialogContext } from "../ui/dialog"
+import { DIALOG_PADDING_X, DialogHeader, useDialog, type DialogContext } from "../ui/dialog"
 import { getScrollAcceleration } from "../util/scroll"
 
 const options = ["no", "yes"] as const
@@ -38,7 +38,13 @@ export function DialogWorkspaceFileChanges(props: {
   const [store, setStore] = createStore({ active: "yes" as WorkspaceFileChangesChoice })
   const height = createMemo(() => Math.min(props.files.length, 8))
   const fileNameWidth = createMemo(() =>
-    Math.max(2, Math.min(60, dimensions().width - 2) - 6 - Math.max(7, ...props.files.map(changeCountWidth))),
+    Math.max(
+      2,
+      Math.min(60, dimensions().width - 2) -
+        DIALOG_PADDING_X * 2 -
+        2 -
+        Math.max(7, ...props.files.map(changeCountWidth)),
+    ),
   )
 
   function confirm() {
@@ -70,8 +76,8 @@ export function DialogWorkspaceFileChanges(props: {
 
   return (
     <box gap={1}>
-      <DialogHeader paddingX={2} title={props.title ?? "File Changes Found"} />
-      <box paddingLeft={2} paddingRight={2}>
+      <DialogHeader inset title={props.title ?? "File Changes Found"} />
+      <box paddingLeft={DIALOG_PADDING_X} paddingRight={DIALOG_PADDING_X}>
         <text fg={theme.text.muted} wrapMode="word">
           {props.message ?? "Do you want to move these changes with the session?"}
         </text>
@@ -84,7 +90,12 @@ export function DialogWorkspaceFileChanges(props: {
       >
         <For each={props.files}>
           {(item) => (
-            <box flexDirection="row" justifyContent="space-between" paddingLeft={2} paddingRight={2}>
+            <box
+              flexDirection="row"
+              justifyContent="space-between"
+              paddingLeft={DIALOG_PADDING_X}
+              paddingRight={DIALOG_PADDING_X}
+            >
               <box flexDirection="row" minWidth={0} flexShrink={1}>
                 <box width={2} flexShrink={0}>
                   <text fg={overlayTheme.text.muted}>{statusLabel(item.status)}</text>
@@ -104,7 +115,13 @@ export function DialogWorkspaceFileChanges(props: {
           )}
         </For>
       </scrollbox>
-      <box flexDirection="row" justifyContent="flex-end" paddingLeft={2} paddingRight={2} paddingBottom={1}>
+      <box
+        flexDirection="row"
+        justifyContent="flex-end"
+        paddingLeft={DIALOG_PADDING_X}
+        paddingRight={DIALOG_PADDING_X}
+        paddingBottom={1}
+      >
         <For each={options}>
           {(item) => (
             <box
