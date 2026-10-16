@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - fix/desktop-open-in-powershell
+      - build/powershell7
   workflow_dispatch:
 
 permissions:
